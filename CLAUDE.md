@@ -2,9 +2,10 @@
 
 ## 📌 Project Overview
 **ALMAS CERAM** is an architectural luxury porcelain tile catalog & CMS application.
-- **Tech Stack:** React 19, TypeScript, Vite 7, Tailwind CSS v4, Node.js Serverless API (`api/*.js`), Supabase Postgres, Vercel Edge Network.
+- **Tech Stack:** React 19, TypeScript 5.9, Vite 7, Tailwind CSS v4, Node.js Serverless API (`api/*.js`), Supabase Postgres, Vercel Edge Network.
 - **Languages:** Multi-lingual (Persian `fa` default, English `en`, Arabic `ar`) with dynamic RTL/LTR direction switching.
 - **Primary Domain:** Architectural Porcelain Tiles (`30x30`, `40x40`, `60x60`, `60x120`, `80x80`, `100x100`, `30x90`).
+- **Current Version:** `4.0.0` (Luxury Minimal Redesign)
 
 ---
 
@@ -37,6 +38,7 @@ npm run preview
 3. **Use Barrel Imports** from `./components` and `./hooks`.
 4. **Use Custom Hooks** (`useProducts`, `useInquiryBasket`, `useTileCompare`) for React state management instead of clogging view components.
 5. **Use UTF-8 BOM (`\uFEFF`)** for any generated CSV/Excel exports to preserve Persian fonts in Microsoft Excel.
+6. **Leverage New Luxury UI Components** - Use `AnimatedSection`, `LuxuryButton`, `LuxuryCard`, etc. from `src/components/ui/` for consistent premium design.
 
 ---
 
@@ -49,6 +51,28 @@ npm run preview
 - **Inline Excel Sheet Editor:** `src/components/admin/BulkEditorSheet.tsx`
 - **Bulk Import Dry-Run Modal:** `src/components/admin/BulkImportModal.tsx`
 - **Bulk Image Upload Modal:** `src/components/admin/BulkImageUploadModal.tsx`
+- **Luxury UI Components:** `src/components/ui/` (AnimatedSection, LuxuryButton, LuxuryCard, etc.)
+- **Skills Showcase Section:** `src/components/sections/SkillsShowcase.tsx`
 - **Central Constants:** `src/constants/index.ts`
 - **Database Schemas & API Spec:** `Document.md`
 - **Design System Tokens:** `design.md`
+
+---
+
+## 🎨 Luxury Design Patterns (v4.0)
+
+### Animation Principles
+- Use `AnimatedSection` for scroll-triggered reveal animations
+- Apply `FadeIn` for subtle entrance effects
+- Maintain smooth transitions (duration: 300-700ms)
+
+### Visual Hierarchy
+- Primary actions: `LuxuryButton` with `primary` variant (gold gradient)
+- Secondary actions: `LuxuryButton` with `glass` variant
+- Cards: `LuxuryCard` with appropriate hover effect
+- Dividers: `LuxuryDivider` between major sections
+
+### Accessibility
+- Respect `prefers-reduced-motion` media query
+- Maintain WCAG AA contrast ratios
+- Ensure keyboard navigation works with all interactive elements

@@ -3,6 +3,9 @@
 ## 📌 Architecture Summary
 ALMAS CERAM is a production-grade web application with a **Serverless Node.js API** backend hosted on Vercel Edge Network, connecting to a **Supabase Postgres (PostgreSQL)** database.
 
+### Version
+**Current Version:** `4.0.0` (Luxury Minimal Redesign + All Phases 1-6)
+
 ### Data Flow Diagram
 ```
 Client Browser (React 19)
@@ -41,3 +44,35 @@ Supabase Postgres Database
 1. **Tile Sizes Constraint:** Exactly 7 mandatory sizes (`30x30`, `40x40`, `60x60`, `60x120`, `80x80`, `100x100`, `30x90`).
 2. **Excel Import Dry-Run:** `POST /api/import-preview` must NEVER mutate DB. Dry run previews diffs first, then `POST /api/import-commit` executes the upserts.
 3. **Empty Cell Retention:** Empty cells in Excel import mean "KEEP EXISTING VALUE", not clear value.
+
+---
+
+## 🎨 Luxury Design System (v4.0)
+### New UI Components
+- `AnimatedSection` - Reveal animations with Intersection Observer
+- `FadeIn` - Fade-in effects with directional variants
+- `LuxuryButton` - Premium buttons with 4 variants and shine effect
+- `LuxuryCard` - Glass morphism cards with hover effects
+- `LuxuryDivider` - Gradient gold dividers
+- `StatBadge` - Luxury stat badges
+
+### CSS Effects
+- Glass Morphism with backdrop-blur
+- Gradient Text with clip
+- Glow Effects with colored shadows
+- Animated Borders with gradient flow
+- Floating Animation
+- Shimmer Effect
+- Ambient Orbs background
+
+---
+
+## 📚 Documentation Files Reference
+| File | Purpose |
+|------|---------|
+| `Document.md` | Complete technical architecture reference |
+| `design.md` | Visual design system and brand guidelines |
+| `ARCHITECTURE.md` | Data flow diagrams and layer architecture |
+| `CLAUDE.md` | AI agent-specific rules and conventions |
+| `CONTRIBUTING.md` | Contribution guidelines and commit format |
+| `SUMMARY.md` | Recent changes summary and next steps |

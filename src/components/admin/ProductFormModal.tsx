@@ -43,12 +43,16 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
     applications: product?.applications || ['کف سالن', 'لابی هتل'],
     color_family: product?.color_family || 'سفید و مرمر (White/Marble)',
     image_url: product?.image_url || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80',
+    face_images: product?.face_images || [],
+    ambiance_images: product?.ambiance_images || [],
     description: product?.description || '',
     description_fa: product?.description_fa || product?.description || '',
     description_en: product?.description_en || '',
     description_ar: product?.description_ar || '',
     featured: product?.featured ?? false
   });
+
+  const [activeImageTab, setActiveImageTab] = useState<'main' | 'faces' | 'ambiance'>('main');
 
   const [submitting, setSubmitting] = useState(false);
 
@@ -314,32 +318,165 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
             </div>
           </div>
 
-          {/* Image URL Field with Image Browser Modal Trigger */}
-          <div>
-            <div className="flex justify-between items-center mb-1">
-              <label className="text-slate-300 font-bold block">لینک تصویر اصلی محصول (URL) *</label>
-              <button
-                type="button"
-                onClick={() => setIsImageBrowserOpen(true)}
-                className="text-amber-400 font-bold flex items-center gap-1 hover:underline text-[11px]"
-              >
-                <ImageIcon className="w-3.5 h-3.5" />
-                <span>📷 انتخاب از کتابخانه تصاویر</span>
-              </button>
+          {/* Image Management Section with Tabs */}
+          <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-4">
+            <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+              <span className="text-amber-300 font-bold flex items-center gap-1.5">
+                <ImageIcon className="w-4 h-4 text-amber-400" />
+                <span>مدیریت تصاویر محصول:</span>
+              </span>
+
+              {/* Image Type Tabs */}
+              <div className="flex rounded-xl bg-slate-900 p-1 border border-slate-800 font-bold text-[11px]">
+                <button
+                  type="button"
+                  onClick={() => setActiveImageTab('main')}
+                  className={`px-3 py-1 rounded-lg transition-all ${
+                    activeImageTab === 'main' ? 'bg-amber-400 text-slate-950 font-black' : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  🖼️ تصویر اصلی
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveImageTab('faces')}
+                  className={`px-3 py-1 rounded-lg transition-all ${
+                    activeImageTab === 'faces' ? 'bg-amber-400 text-slate-950 font-black' : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  📐 فیس‌های متغیر ({formData.face_images?.length || 0})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveImageTab('ambiance')}
+                  className={`px-3 py-1 rounded-lg transition-all ${
+                    activeImageTab === 'ambiance' ? 'bg-amber-400 text-slate-950 font-black' : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  🏠 فضای اجرا ({formData.ambiance_images?.length || 0})
+                </button>
+              </div>
             </div>
 
-            <div className="flex gap-2 items-center">
-              <input
-                type="url"
-                required
-                value={formData.image_url}
-                onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                className="flex-1 bg-slate-950 border border-slate-800 rounded-xl py-2 px-3 text-slate-100 font-mono text-left focus:border-amber-500"
-              />
-              {formData.image_url && (
-                <img src={formData.image_url} alt="Preview" className="w-12 h-10 object-cover rounded-lg border border-slate-800" />
-              )}
-            </div>
+            {/* Main Image Tab */}
+            {activeImageTab === 'main' && (
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <label className="text-slate-300 font-bold block">لینک تصویر اصلی محصول (URL) *</label>
+                  <button
+                    type="button"
+                    onClick={() => setIsImageBrowserOpen(true)}
+                    className="text-amber-400 font-bold flex items-center gap-1 hover:underline text-[11px]"
+                  >
+                    <ImageIcon className="w-3.5 h-3.5" />
+                    <span>📷 انتخاب از کتابخانه تصاویر</span>
+                  </button>
+                </div>
+
+                <div className="flex gap-2 items-center">
+                  <input
+                    type="url"
+                    required
+                    value={formData.image_url}
+                    onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
+                    className="flex-1 bg-slate-900 border border-slate-800 rounded-xl py-2 px-3 text-slate-100 font-mono text-left focus:border-amber-500"
+                  />
+                  {formData.image_url && (
+                    <img src={formData.image_url} alt="Preview" className="w-16 h-16 object-cover rounded-lg border border-amber-500/40 shadow-lg" />
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Faces Images Tab */}
+            {activeImageTab === 'faces' && (
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <label className="text-slate-300 font-bold block">تصاویر فیس‌های متغیر (حداکثر {formData.faces_count} عدد)</label>
+                  <button
+                    type="button"
+                    onClick={() => setIsImageBrowserOpen(true)}
+                    className="text-amber-400 font-bold flex items-center gap-1 hover:underline text-[11px]"
+                  >
+                    <ImageIcon className="w-3.5 h-3.5" />
+                    <span>+ افزودن فیس جدید</span>
+                  </button>
+                </div>
+
+                {formData.face_images && formData.face_images.length > 0 ? (
+                  <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
+                    {formData.face_images.map((img, idx) => (
+                      <div key={idx} className="relative group">
+                        <img src={img} alt={`Face ${idx + 1}`} className="w-full aspect-square object-cover rounded-lg border border-slate-700" />
+                        <div className="absolute inset-0 bg-slate-950/80 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
+                          <button
+                            type="button"
+                            onClick={() => setFormData({ ...formData, face_images: formData.face_images?.filter((_, i) => i !== idx) || [] })}
+                            className="p-1.5 rounded-full bg-rose-500 text-white hover:bg-rose-600"
+                          >
+                            <X className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                        <span className="text-[10px] text-slate-400 text-center mt-1 block">فیس {idx + 1}</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div 
+                    onClick={() => setIsImageBrowserOpen(true)}
+                    className="border-2 border-dashed border-slate-700 rounded-xl p-6 text-center cursor-pointer hover:border-amber-500/50 transition-colors"
+                  >
+                    <ImageIcon className="w-8 h-8 text-slate-600 mx-auto mb-2" />
+                    <p className="text-slate-400 text-xs">برای افزودن تصاویر فیس کلیک کنید</p>
+                    <p className="text-slate-500 text-[10px] mt-1">تعداد فیس تعریف شده: {formData.faces_count}</p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Ambiance Images Tab */}
+            {activeImageTab === 'ambiance' && (
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <label className="text-slate-300 font-bold block">تصاویر فضای اجرا (نمونه کارهای نصب شده)</label>
+                  <button
+                    type="button"
+                    onClick={() => setIsImageBrowserOpen(true)}
+                    className="text-amber-400 font-bold flex items-center gap-1 hover:underline text-[11px]"
+                  >
+                    <ImageIcon className="w-3.5 h-3.5" />
+                    <span>+ افزودن تصویر فضا</span>
+                  </button>
+                </div>
+
+                {formData.ambiance_images && formData.ambiance_images.length > 0 ? (
+                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                    {formData.ambiance_images.map((img, idx) => (
+                      <div key={idx} className="relative group">
+                        <img src={img} alt={`Ambiance ${idx + 1}`} className="w-full aspect-square object-cover rounded-lg border border-slate-700" />
+                        <div className="absolute inset-0 bg-slate-950/80 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
+                          <button
+                            type="button"
+                            onClick={() => setFormData({ ...formData, ambiance_images: formData.ambiance_images?.filter((_, i) => i !== idx) || [] })}
+                            className="p-1.5 rounded-full bg-rose-500 text-white hover:bg-rose-600"
+                          >
+                            <X className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div 
+                    onClick={() => setIsImageBrowserOpen(true)}
+                    className="border-2 border-dashed border-slate-700 rounded-xl p-6 text-center cursor-pointer hover:border-amber-500/50 transition-colors"
+                  >
+                    <ImageIcon className="w-8 h-8 text-slate-600 mx-auto mb-2" />
+                    <p className="text-slate-400 text-xs">برای افزودن تصاویر فضای اجرا کلیک کنید</p>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           <div className="flex items-center gap-2 pt-2">
@@ -370,8 +507,22 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
       <ImageBrowserModal
         isOpen={isImageBrowserOpen}
         onClose={() => setIsImageBrowserOpen(false)}
-        onSelectImage={(url) => setFormData({ ...formData, image_url: url })}
-        title="انتخاب تصویر محصول از کتابخانه رسانه‌ای کارخانه"
+        onSelectImage={(url) => {
+          if (activeImageTab === 'faces') {
+            setFormData({ ...formData, face_images: [...(formData.face_images || []), url] });
+          } else if (activeImageTab === 'ambiance') {
+            setFormData({ ...formData, ambiance_images: [...(formData.ambiance_images || []), url] });
+          } else {
+            setFormData({ ...formData, image_url: url });
+          }
+        }}
+        title={
+          activeImageTab === 'faces' 
+            ? 'انتخاب تصویر فیس جدید از کتابخانه رسانه‌ای کارخانه' 
+            : activeImageTab === 'ambiance'
+            ? 'انتخاب تصویر فضای اجرا از کتابخانه رسانه‌ای کارخانه'
+            : 'انتخاب تصویر محصول از کتابخانه رسانه‌ای کارخانه'
+        }
       />
     </div>
   );
