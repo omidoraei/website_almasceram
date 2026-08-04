@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Product } from '../../types/tile';
 import { Save, Sparkles, CheckSquare, Square, RefreshCw, Image as ImageIcon, Layout } from 'lucide-react';
 import { ImageBrowserModal } from './ImageBrowserModal';
+import { getHomepageContentByKey, upsertHomepageContent } from '../../lib/api';
 
 interface HomepageContentEditorProps {
   products: Product[];
@@ -32,20 +33,20 @@ export const HomepageContentEditor: React.FC<HomepageContentEditorProps> = ({
   const fetchHomepageContent = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/homepage-content');
-      if (res.ok) {
-        const data = await res.json();
+      const data = await getHomepageContentByKey('homepage_settings');
+      if (data && data.content_json) {
+        const content = data.content_json;
         setFormData({
-          hero_title: data.hero_title || '',
-          hero_subtitle: data.hero_subtitle || '',
-          hero_description: data.hero_description || '',
-          hero_image_url: data.hero_image_url || '',
-          about_title: data.about_title || '',
-          about_description: data.about_description || '',
-          cta_title: data.cta_title || '',
-          cta_description: data.cta_description || '',
-          cta_button_text: data.cta_button_text || '',
-          featured_product_ids: Array.isArray(data.featured_product_ids) ? data.featured_product_ids : []
+          hero_title: content.hero_title || '',
+          hero_subtitle: content.hero_subtitle || '',
+          hero_description: content.hero_description || '',
+          hero_image_url: content.hero_image_url || '',
+          about_title: content.about_title || '',
+          about_description: content.about_description || '',
+          cta_title: content.cta_title || '',
+          cta_description: content.cta_description || '',
+          cta_button_text: content.cta_button_text || '',
+          featured_product_ids: Array.isArray(content.featured_product_ids) ? content.featured_product_ids : []
         });
       }
     } catch (err) {
@@ -73,11 +74,20 @@ export const HomepageContentEditor: React.FC<HomepageContentEditorProps> = ({
     e.preventDefault();
     setSaving(true);
     try {
-      const res = await fetch('/api/homepage-content', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-      });
+      const result = await upsertHomepageContent('homepage_settings', formData);
+      if (result) {
+        alert('تنظیمات صفحه اصلی با موفقیت ذخیره شد.');
+        onSaveSuccess();
+      } else {
+        alert('خطا در ذخیره تنظیمات.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('خطا در ارتباط با سرور.');
+    } finally {
+      setSaving(false);
+    }
+  };
 
       if (res.ok) {
         alert('محتوای صفحه اصلی با موفقیت بروزرسانی شد.');

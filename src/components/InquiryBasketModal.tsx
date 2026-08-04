@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { InquiryItem } from '../types/tile';
 import { X, FileText, Send, Trash2, CheckCircle2, Building, Phone, User, MessageSquare } from 'lucide-react';
+import { submitInquiry } from '../../lib/api';
 
 interface InquiryBasketModalProps {
   items: InquiryItem[];
@@ -32,30 +33,30 @@ export const InquiryBasketModal: React.FC<InquiryBasketModalProps> = ({
 
     setSubmitting(true);
     try {
-      const res = await fetch('/api/inquiry', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          customer_name: name,
-          phone,
-          company,
-          notes,
-          items: items.map((i) => ({
-            id: i.product.id,
-            code: i.product.code,
-            title: i.product.title_fa,
-            size: i.product.size,
-            sqm: i.quantitySqm
-          }))
-        })
+      const result = await submitInquiry({
+        customer_name: name,
+        customer_phone: phone,
+        customer_email: null,
+        products_json: items.map((i) => ({
+          id: i.product.id,
+          code: i.product.code,
+          title: i.product.title_fa,
+          size: i.product.size,
+          sqm: i.quantitySqm
+        })),
+        message: notes || null,
+        status: 'pending'
       });
 
-      const data = await res.json();
-      if (res.ok) {
-        setSuccessMessage(data.message || 'درخواست شما ثبت شد.');
+      if (result) {
+        setSuccessMessage('درخواست استعلام قیمت شما با موفقیت ثبت شد. کارشناسان فروش ما در اسرع وقت با شما تماس خواهند گرفت.');
         onClearAll();
+        setName('');
+        setPhone('');
+        setCompany('');
+        setNotes('');
       } else {
-        alert(data.error || 'خطایی در ثبت درخواست رخ داد.');
+        alert('خطایی در ثبت درخواست رخ داد. لطفاً دوباره تلاش کنید.');
       }
     } catch (err) {
       console.error(err);

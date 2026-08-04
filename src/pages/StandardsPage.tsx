@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ShieldCheck, Award, CheckCircle2, RefreshCw, X, Eye, Maximize2 } from 'lucide-react';
+import { getStandards } from '../lib/api';
 
 export const StandardsPage: React.FC = () => {
   const [standards, setStandards] = useState<any[]>([]);
@@ -9,8 +10,8 @@ export const StandardsPage: React.FC = () => {
   const fetchStandards = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/standards');
-      if (res.ok) setStandards(await res.json() || []);
+      const data = await getStandards();
+      setStandards(data || []);
     } catch (e) {
       console.error(e);
     } finally {

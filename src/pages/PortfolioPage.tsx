@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Building, RefreshCw } from 'lucide-react';
+import { getPortfolioItems } from '../lib/api';
 
 export const PortfolioPage: React.FC = () => {
   const [projects, setProjects] = useState<any[]>([]);
@@ -9,8 +10,8 @@ export const PortfolioPage: React.FC = () => {
   const fetchPortfolio = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/portfolio');
-      if (res.ok) setProjects(await res.json() || []);
+      const data = await getPortfolioItems();
+      setProjects(data || []);
     } catch (e) {
       console.error(e);
     } finally {

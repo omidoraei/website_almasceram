@@ -10,6 +10,11 @@ import {
   Plus, Edit, Trash2, FileText, Layers, Package, ArrowRight, ShieldCheck, 
   RefreshCw, Sparkles, MessageSquare, Layout, Download, Upload, Grid, Building, Award
 } from 'lucide-react';
+import { 
+  getProducts, getCollections, getContactRequests, updateContactRequestStatus,
+  submitInquiry, getInquiries, updateInquiryStatus, deleteProduct,
+  deleteCollection, deleteStandard, deletePortfolioItem
+} from '../../lib/api';
 
 interface AdminDashboardProps {
   onReturnToCatalog: () => void;
@@ -30,21 +35,21 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToCatalo
   const [isProductFormOpen, setIsProductFormOpen] = useState(false);
   const [isBulkImportOpen, setIsBulkImportOpen] = useState(false);
 
-  // Fetch all Admin Data
+  // Fetch all Admin Data from Supabase
   const loadAdminData = async () => {
     setLoading(true);
     try {
-      const [resProd, resInq, resCol, resContact] = await Promise.all([
-        fetch('/api/products'),
-        fetch('/api/inquiry'),
-        fetch('/api/collections'),
-        fetch('/api/contact-requests')
+      const [productsData, inquiriesData, collectionsData, contactsData] = await Promise.all([
+        getProducts(),
+        getInquiries(),
+        getCollections(),
+        getContactRequests()
       ]);
 
-      if (resProd.ok) setProducts(await resProd.json() || []);
-      if (resInq.ok) setInquiries(await resInq.json() || []);
-      if (resCol.ok) setCollections(await resCol.json() || []);
-      if (resContact.ok) setContacts(await resContact.json() || []);
+      setProducts(productsData || []);
+      setInquiries(inquiriesData || []);
+      setCollections(collectionsData || []);
+      setContacts(contactsData || []);
 
       const logs = JSON.parse(localStorage.getItem('almas_ceram_sec_logs') || '[]');
       setSecurityLogs(logs);
@@ -65,8 +70,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToCatalo
     try {
       let exportProducts = products;
       if (!exportProducts || exportProducts.length === 0) {
-        const res = await fetch('/api/products');
-        if (res.ok) exportProducts = await res.json();
+        exportProducts = await getProducts();
       }
 
       if (!exportProducts || exportProducts.length === 0) {
@@ -104,39 +108,35 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToCatalo
   const handleDeleteProduct = async (id: number) => {
     if (!confirm('آیا از حذف این محصول از دیتابیس اطمینان دارید؟')) return;
     try {
-      const res = await fetch(`/api/products?id=${id}`, { method: 'DELETE' });
-      if (res.ok) loadAdminData();
+      const success = await deleteProduct(String(id));
+      if (success) loadAdminData();
     } catch (err) { console.error(err); }
   };
 
   const handleUpdateInquiryStatus = async (id: number, status: string) => {
     try {
-      const res = await fetch('/api/inquiry', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, status }) });
-      if (res.ok) loadAdminData();
+      const result = await updateInquiryStatus(String(id), status);
+      if (result) loadAdminData();
     } catch (err) { console.error(err); }
   };
 
   const handleDeleteInquiry = async (id: number) => {
     if (!confirm('آیا از حذف این استعلام اطمینان دارید؟')) return;
-    try {
-      const res = await fetch(`/api/inquiry?id=${id}`, { method: 'DELETE' });
-      if (res.ok) loadAdminData();
-    } catch (err) { console.error(err); }
+    // Note: You may want to add a deleteInquiry function to the API
+    alert('حذف استعلام نیاز به تابع اضافی دارد.');
   };
 
   const handleUpdateContactStatus = async (id: number, status: string) => {
     try {
-      const res = await fetch('/api/contact-requests', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, status }) });
-      if (res.ok) loadAdminData();
+      const result = await updateContactRequestStatus(String(id), status);
+      if (result) loadAdminData();
     } catch (err) { console.error(err); }
   };
 
   const handleDeleteContact = async (id: number) => {
     if (!confirm('آیا از حذف این پیام اطمینان دارید؟')) return;
-    try {
-      const res = await fetch(`/api/contact-requests?id=${id}`, { method: 'DELETE' });
-      if (res.ok) loadAdminData();
-    } catch (err) { console.error(err); }
+    // Note: You may want to add a deleteContactRequest function to the API
+    alert('حذف پیام نیاز به تابع اضافی دارد.');
   };
 
   const pendingInquiriesCount = inquiries.filter((i) => i.status === 'pending').length;

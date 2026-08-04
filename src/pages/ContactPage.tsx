@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Phone, Mail, MapPin, Clock, Send, CheckCircle2, Building, MessageSquare, ShieldCheck } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
+import { submitContactRequest } from '../lib/api';
 
 interface ContactPageProps {
   productContext?: any;
@@ -28,26 +29,19 @@ export const ContactPage: React.FC<ContactPageProps> = ({ productContext }) => {
     setErrorMsg(null);
 
     try {
-      const res = await fetch('/api/contact-requests', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name,
-          phone,
-          email,
-          subject,
-          message,
-          product_code: productContext?.code || '',
-          product_title: productContext?.title_fa || '',
-          website
-        })
+      const result = await submitContactRequest({
+        full_name: name,
+        phone_number: phone,
+        email,
+        subject,
+        message,
+        ip_address: ''
       });
 
-      const data = await res.json();
-      if (res.ok) {
-        setSuccessMessage(data.message || 'پیام شما با موفقیت دریافت شد.');
+      if (result) {
+        setSuccessMessage('پیام شما با موفقیت ثبت شد. کارشناسان ما به زودی با شما تماس خواهند گرفت.');
       } else {
-        setErrorMsg(data.error || 'خطا در ارسال پیام.');
+        setErrorMsg('خطا در ارسال پیام. لطفاً مجدداً تلاش کنید.');
       }
     } catch (err) {
       console.error(err);
