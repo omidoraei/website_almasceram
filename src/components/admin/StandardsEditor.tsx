@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, Save, ShieldCheck, RefreshCw, Image as ImageIcon } from 'lucide-react';
 import { ImageBrowserModal } from './ImageBrowserModal';
+import { getStandards, createStandard, updateStandard, deleteStandard } from '../../lib/api';
 
 export const StandardsEditor: React.FC = () => {
   const [standards, setStandards] = useState<any[]>([]);
@@ -11,8 +12,8 @@ export const StandardsEditor: React.FC = () => {
   const fetchStandards = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/standards');
-      if (res.ok) setStandards(await res.json() || []);
+      const data = await getStandards();
+      setStandards(data || []);
     } catch (e) {
       console.error(e);
     } finally {
@@ -26,31 +27,34 @@ export const StandardsEditor: React.FC = () => {
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!editingItem?.title) return;
+    if (!editingItem?.title_fa) return;
 
     try {
-      const method = editingItem.id ? 'PUT' : 'POST';
-      const res = await fetch('/api/standards', {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(editingItem)
-      });
+      let result;
+      if (editingItem.id) {
+        result = await updateStandard(String(editingItem.id), editingItem);
+      } else {
+        result = await createStandard(editingItem);
+      }
 
-      if (res.ok) {
+      if (result) {
         alert('استاندارد/گواهینامه با موفقیت ذخیره شد.');
         setEditingItem(null);
         fetchStandards();
+      } else {
+        alert('خطا در ذخیره استاندارد.');
       }
     } catch (err) {
       console.error(err);
+      alert('خطا در ارتباط با سرور.');
     }
   };
 
   const handleDelete = async (id: number) => {
     if (!confirm('آیا از حذف این گواهینامه اطمینان دارید؟')) return;
     try {
-      const res = await fetch(`/api/standards?id=${id}`, { method: 'DELETE' });
-      if (res.ok) fetchStandards();
+      const success = await deleteStandard(String(id));
+      if (success) fetchStandards();
     } catch (e) {
       console.error(e);
     }

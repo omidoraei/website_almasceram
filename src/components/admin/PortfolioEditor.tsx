@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, Save, Building, Image as ImageIcon } from 'lucide-react';
 import { ImageBrowserModal } from './ImageBrowserModal';
+import { getPortfolioItems, createPortfolioItem, updatePortfolioItem, deletePortfolioItem } from '../../lib/api';
 
 export const PortfolioEditor: React.FC = () => {
   const [projects, setProjects] = useState<any[]>([]);
@@ -11,8 +12,8 @@ export const PortfolioEditor: React.FC = () => {
   const fetchProjects = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/portfolio');
-      if (res.ok) setProjects(await res.json() || []);
+      const data = await getPortfolioItems();
+      setProjects(data || []);
     } catch (e) {
       console.error(e);
     } finally {
@@ -26,31 +27,34 @@ export const PortfolioEditor: React.FC = () => {
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!editingProj?.title || !editingProj?.image) return;
+    if (!editingProj?.project_name || !editingProj?.image_url) return;
 
     try {
-      const method = editingProj.id ? 'PUT' : 'POST';
-      const res = await fetch('/api/portfolio', {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(editingProj)
-      });
+      let result;
+      if (editingProj.id) {
+        result = await updatePortfolioItem(String(editingProj.id), editingProj);
+      } else {
+        result = await createPortfolioItem(editingProj);
+      }
 
-      if (res.ok) {
+      if (result) {
         alert('پروژه نمونه‌کار با موفقیت ذخیره شد.');
         setEditingProj(null);
         fetchProjects();
+      } else {
+        alert('خطا در ذخیره پروژه.');
       }
     } catch (err) {
       console.error(err);
+      alert('خطا در ارتباط با سرور.');
     }
   };
 
   const handleDelete = async (id: number) => {
     if (!confirm('آیا از حذف این پروژه نمونه‌کار اطمینان دارید؟')) return;
     try {
-      const res = await fetch(`/api/portfolio?id=${id}`, { method: 'DELETE' });
-      if (res.ok) fetchProjects();
+      const success = await deletePortfolioItem(String(id));
+      if (success) fetchProjects();
     } catch (e) {
       console.error(e);
     }

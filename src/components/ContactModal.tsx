@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Product } from '../types/tile';
 import { X, Send, Phone, Mail, MapPin, Clock, MessageSquare, CheckCircle2, ShieldCheck, Building } from 'lucide-react';
+import { submitContactRequest } from '../../lib/api';
 
 interface ContactModalProps {
   isOpen: boolean;
@@ -30,26 +31,25 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose, pro
     setErrorMsg(null);
 
     try {
-      const res = await fetch('/api/contact-requests', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name,
-          phone,
-          email,
-          subject,
-          message,
-          product_code: productContext?.code || '',
-          product_title: productContext?.title_fa || '',
-          website // honeypot
-        })
+      const result = await submitContactRequest({
+        full_name: name,
+        phone_number: phone,
+        email: email || null,
+        subject: subject || null,
+        message: message,
+        status: 'new'
       });
 
-      const data = await res.json();
-      if (res.ok) {
-        setSuccessMessage(data.message || 'پیام شما با موفقیت دریافت شد.');
+      if (result) {
+        setSuccessMessage('پیام شما با موفقیت دریافت شد. کارشناسان ما به زودی با شما تماس خواهند گرفت.');
+        setName('');
+        setPhone('');
+        setEmail('');
+        setSubject(productContext ? `استعلام قیمت کاشی ${productContext.title_fa}` : 'مشاوره و دریافت کاتالوگ');
+        setMessage('');
+        setWebsite('');
       } else {
-        setErrorMsg(data.error || 'خطا در ارسال پیام.');
+        setErrorMsg('خطا در ارسال پیام. لطفاً دوباره تلاش کنید.');
       }
     } catch (err) {
       console.error(err);

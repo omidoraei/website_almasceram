@@ -28,6 +28,7 @@ import { StandardsPage } from './pages/StandardsPage';
 import { PrivacyPolicyPage } from './pages/PrivacyPolicyPage';
 import { TermsPage } from './pages/TermsPage';
 import { trackTileView } from './lib/analytics';
+import { getProducts as fetchProductsFromSupabase, getCollections as fetchCollectionsFromSupabase } from './lib/api';
 import { Filter, Sparkles, RefreshCw, AlertCircle, Lock, MessageSquare } from 'lucide-react';
 
 export function App() {
@@ -76,23 +77,45 @@ export function App() {
     document.documentElement.dir = currentLang === 'en' ? 'ltr' : 'rtl';
   }, [currentLang]);
 
-  // Fetch Products from API
+  // Fetch Products from Supabase
   const fetchProducts = async () => {
     setLoading(true);
     setError(null);
     try {
-      const params = new URLSearchParams();
-      if (searchQuery) params.append('search', searchQuery);
-      if (selectedQuickSize) params.append('size', selectedQuickSize);
-      else if (filters.sizes.length > 0) params.append('size', filters.sizes.join(','));
-      if (filters.finishes.length > 0) params.append('finish', filters.finishes.join(','));
-      if (filters.bodyType) params.append('body', filters.bodyType);
-      if (filters.collection) params.append('collection', filters.collection);
-
-      const res = await fetch(`/api/products?${params.toString()}`);
-      if (!res.ok) throw new Error('خطا در دریافت لیست محصولات');
-      const data = await res.json();
-      setProducts(data || []);
+      const allProducts = await fetchProductsFromSupabase();
+      
+      // Apply client-side filtering
+      let filtered = allProducts;
+      
+      if (searchQuery) {
+        filtered = filtered.filter(p => 
+          p.name_fa?.includes(searchQuery) || 
+          p.name_en?.includes(searchQuery) ||
+          p.description?.includes(searchQuery)
+        );
+      }
+      
+      if (selectedQuickSize) {
+        const [w, h] = selectedQuickSize.split('x').map(Number);
+        filtered = filtered.filter(p => p.width === w && p.length === h);
+      } else if (filters.sizes.length > 0) {
+        filtered = filtered.filter(p => 
+          filters.sizes.some(size => {
+            const [w, h] = size.split('x').map(Number);
+            return p.width === w && p.length === h;
+          })
+        );
+      }
+      
+      if (filters.finishes.length > 0) {
+        filtered = filtered.filter(p => filters.finishes.includes(p.surface_type || ''));
+      }
+      
+      if (filters.bodyType) {
+        filtered = filtered.filter(p => p.material_type === filters.bodyType);
+      }
+      
+      setProducts(filtered as Product[]);
     } catch (err: any) {
       console.error(err);
       setError(err.message || 'ارتباط با سرور برقرار نشد.');
@@ -101,14 +124,11 @@ export function App() {
     }
   };
 
-  // Fetch Collections
+  // Fetch Collections from Supabase
   const fetchCollections = async () => {
     try {
-      const res = await fetch('/api/collections');
-      if (res.ok) {
-        const data = await res.json();
-        setCollections(data || []);
-      }
+      const data = await fetchCollectionsFromSupabase();
+      setCollections(data || []);
     } catch (err) {
       console.error(err);
     }
