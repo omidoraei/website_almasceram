@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Allow: /api/products
+Allow: /api/collections
+Allow: /api/homepage-content
+Disallow: /api/admin
+Disallow: /admin
+
+Sitemap: https://almasceram.com/api/sitemap

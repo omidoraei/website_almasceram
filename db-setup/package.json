@@ -1,0 +1,13 @@
+{
+  "name": "almas-ceram-database",
+  "version": "1.0.0",
+  "description": "Complete database schema for Almas Ceram project on Supabase",
+  "type": "module",
+  "scripts": {
+    "setup-db": "node setup-database.js",
+    "test-connection": "node test-db-connection.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.0"
+  }
+}
