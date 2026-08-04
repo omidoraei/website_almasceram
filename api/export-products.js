@@ -55,7 +55,11 @@ export default async function handler(req, res) {
       'برش لیزری (Rectified)',
       'گروه رنگی',
       'لینک تصویر اصلی',
+      'تصاویر فیس‌ها (JSON Array)',
+      'تصاویر فضای اجرا (JSON Array)',
       'توضیحات فارسی',
+      'توضیحات انگلیسی',
+      'توضیحات عربی',
       'نمایش ویژه (Featured)'
     ].map(col => `"${col.replace(/"/g, '""')}"`).join(',') + '\r\n';
 
@@ -78,7 +82,11 @@ export default async function handler(req, res) {
         p.rectified ? 'بله' : 'خیر',
         p.color_family || '',
         p.image_url || '',
+        JSON.stringify(p.face_images || []),
+        JSON.stringify(p.ambiance_images || []),
         (p.description_fa || p.description || '').replace(/\r?\n|\r/g, ' '),
+        (p.description_en || '').replace(/\r?\n|\r/g, ' '),
+        (p.description_ar || '').replace(/\r?\n|\r/g, ' '),
         p.featured ? 'بله' : 'خیر'
       ];
 

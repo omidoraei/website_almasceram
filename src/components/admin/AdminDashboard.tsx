@@ -76,11 +76,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToCatalo
       }
 
       let csvContent = '\uFEFF';
-      const headers = ['شناسه (ID)','کد کالا (Product Code)','عنوان فارسی','عنوان انگلیسی','عنوان عربی','کد کالکشن','نام کالکشن','ابعاد (Size)','نوع سطح (Surface Finish)','نوع بدنه (Body Type)','تعداد فیس (Faces Count)','ضخامت (Thickness mm)','جذب آب (Water Absorption)','برش لیزری (Rectified)','گروه رنگی','لینک تصویر اصلی','توضیحات فارسی','نمایش ویژه (Featured)'];
+      const headers = ['شناسه (ID)','کد کالا (Product Code)','عنوان فارسی','عنوان انگلیسی','عنوان عربی','کد کالکشن','نام کالکشن','ابعاد (Size)','نوع سطح (Surface Finish)','نوع بدنه (Body Type)','تعداد فیس (Faces Count)','ضخامت (Thickness mm)','جذب آب (Water Absorption)','برش لیزری (Rectified)','گروه رنگی','لینک تصویر اصلی','تصاویر فیس‌ها (JSON Array)','تصاویر فضای اجرا (JSON Array)','توضیحات فارسی','نمایش ویژه (Featured)'];
       csvContent += headers.map((h) => `"${h.replace(/"/g, '""')}"`).join(',') + '\r\n';
 
       exportProducts.forEach((p) => {
-        const row = [p.id||'', p.code||'', p.title_fa||'', p.title_en||'', p.title_ar||'', p.collection_code||'', p.collection_name||'', p.size||'', p.surface_finish||'', p.body_type||'', p.faces_count||1, p.thickness_mm||'', p.water_absorption||'', p.rectified?'بله':'خیر', p.color_family||'', p.image_url||'', (p.description_fa||p.description||'').replace(/\r?\n|\r/g,' '), p.featured?'بله':'خیر'];
+        const row = [p.id||'', p.code||'', p.title_fa||'', p.title_en||'', p.title_ar||'', p.collection_code||'', p.collection_name||'', p.size||'', p.surface_finish||'', p.body_type||'', p.faces_count||1, p.thickness_mm||'', p.water_absorption||'', p.rectified?'بله':'خیر', p.color_family||'', p.image_url||'', JSON.stringify(p.face_images||[]), JSON.stringify(p.ambiance_images||[]), (p.description_fa||p.description||'').replace(/\r?\n|\r/g,' '), p.featured?'بله':'خیر'];
         csvContent += row.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(',') + '\r\n';
       });
 
