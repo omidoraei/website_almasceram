@@ -1,0 +1,45 @@
+{
+  "database_issue": {
+    "title": "Function Search Path Mutable",
+    "entity": "public.update_updated_at_column",
+    "schema": "public",
+    "severity": "high",
+    "description": "تابع update_updated_at_column فاقد search_path ثابت بود که باعث ایجاد مشکلات امنیتی و عملکردی می‌شود"
+  },
+  "root_cause": "وقتی search_path در تابع تنظیم نشده باشد، نام‌های unqualified (مثل جدول‌ها یا توابع بدون پیشوند schema) بر اساس search_path فراخوان resolve می‌شوند که می‌تواند منجر به رفتار غیرقابل پیش‌بینی و ریسک امنیتی شود",
+  "solution_applied": {
+    "file_created": "supabase-schema-fixed.sql",
+    "key_fix": "SET search_path = pg_catalog, public",
+    "tables_created": [
+      "collections",
+      "products",
+      "portfolio_items",
+      "standards",
+      "homepage_content",
+      "contact_requests",
+      "admin_logs"
+    ],
+    "triggers_added": true,
+    "rls_policies_added": true,
+    "sample_data_added": true
+  },
+  "execution_steps": [
+    "ورود به پنل Supabase",
+    "باز کردن SQL Editor",
+    "کپی محتوای فایل supabase-schema-fixed.sql",
+    "اجرای اسکریپت",
+    "بررسی موفقیت اجرا",
+    "Redeploy پروژه در Vercel"
+  ],
+  "verification_query": "SELECT proname, proconfig FROM pg_proc WHERE proname = 'update_updated_at_column';",
+  "expected_output": "{search_path=pg_catalog,public}",
+  "warnings": [
+    "اسکریپت جداول قدیمی را حذف می‌کند - backup بگیرید",
+    "سیاست‌های RLS برای محیط توسعه باز هستند",
+    "برای تولید باید Auth و RLS را تنظیم کنید"
+  ],
+  "files_created": [
+    "/workspace/supabase-schema-fixed.sql",
+    "/workspace/DATABASE_FIX_GUIDE.md"
+  ]
+}
