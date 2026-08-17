@@ -1,1 +1,3 @@
-(DATABASE_SETUP_GUIDE.md is a documentation file and should not be added to .gitignore)
+```
+node_modules/
+```
